@@ -1,5 +1,9 @@
 [![한국어](https://img.shields.io/badge/README.md-한국어-green.svg)](README.ko.md)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/aprillz/MewUI/main/assets/logo/logo-256.png" alt="MewUI Logo" width="128"/>
+</p>
+
 # 🍎 MewUIBadApple
 
 ![.NET](https://img.shields.io/badge/.NET-10%2B-512BD4?logo=dotnet&logoColor=white)

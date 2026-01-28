@@ -6,6 +6,10 @@ var videoPath = args.Length > 0 ? args[0] : "badapple.mp4";
 if (!File.Exists(videoPath))
     videoPath = "src/badapple.mp4";
 
+var iconPath = "appicon.ico";
+if (!File.Exists(iconPath))
+    iconPath = "src/appicon.ico";
+
 const int width = 120;
 const int height = 90;
 const int totalFrames = 6572; // ~3m39s @ 30 FPS (approximate)
@@ -108,5 +112,8 @@ var window = new Window()
         animTimer?.Dispose();
         framesReader.Dispose();
     });
+
+if (File.Exists(iconPath))
+    window.Icon = IconSource.FromFile(iconPath);
 
 Application.Run(window);
