@@ -1,13 +1,13 @@
 ---
-name: rendering-mewui-custom-element
-description: "Renders custom FrameworkElement in MewUI using absolute Bounds coordinates instead of (0,0). Use when custom element alignment (Center, Right, Bottom) appears to be ignored or element always renders at top-left corner."
+paths:
+  - "**/*.cs"
 ---
 
 # MewUI Custom Element Rendering
 
 MewUI does NOT apply coordinate transforms when rendering children. Each element must render at its absolute `Bounds` position.
 
-## The Problem
+## Problem
 
 ```csharp
 // ❌ WRONG - Always draws at top-left, ignoring alignment
@@ -17,7 +17,7 @@ public override void Render(IGraphicsContext context)
 }
 ```
 
-## The Solution
+## Solution
 
 ```csharp
 // ✅ CORRECT - Use Bounds.X and Bounds.Y
@@ -42,18 +42,8 @@ public override void Render(IGraphicsContext context)
 | WPF | Relative (0,0 = element origin) | Transform pushed automatically |
 | MewUI | Absolute (0,0 = window origin) | No transform applied |
 
-**MewUI Panel.Render** simply calls `child.Render(context)` without any translation:
-
-```csharp
-// MewUI Panel.cs - No transform!
-foreach (var child in _children)
-{
-    child.Render(context);
-}
-```
-
 ## Checklist
 
-- [ ] Use `Bounds.X` and `Bounds.Y` as offset in Render
-- [ ] Apply offset to ALL drawing operations
-- [ ] Override `MeasureContent` to return `new Size(Width, Height)`
+- Use `Bounds.X` and `Bounds.Y` as offset in Render
+- Apply offset to ALL drawing operations
+- Override `MeasureContent` to return `new Size(Width, Height)`
