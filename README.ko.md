@@ -58,6 +58,7 @@ MewUIBadApple/
 │   ├── FfmpegFrameReader.cs   # ffmpeg 프로세스 래퍼
 │   ├── GlobalUsings.cs        # 전역 using 지시문
 │   ├── Directory.Build.props  # 빌드 설정
+│   ├── appicon.ico            # 창 아이콘 (MewUI 로고)
 │   └── badapple.mp4           # 소스 비디오
 └── README.md
 ```

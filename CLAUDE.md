@@ -17,7 +17,10 @@ MewUiBadApple/
 │   ├── FfmpegFrameReader.cs   # ffmpeg process wrapper for frame streaming
 │   ├── GlobalUsings.cs        # Global using directives
 │   ├── Directory.Build.props  # Includes additional .cs files for dotnet run
+│   ├── appicon.ico            # Window icon (MewUI logo)
 │   └── badapple.mp4           # Source video
+├── .claude/
+│   └── skills/                # Claude Code learned skills
 ├── CLAUDE.md                  # This file
 └── README.md                  # Project documentation
 ```

@@ -58,6 +58,7 @@ MewUIBadApple/
 │   ├── FfmpegFrameReader.cs   # ffmpeg process wrapper
 │   ├── GlobalUsings.cs        # Global using directives
 │   ├── Directory.Build.props  # Build configuration
+│   ├── appicon.ico            # Window icon (MewUI logo)
 │   └── badapple.mp4           # Source video
 └── README.md
 ```
