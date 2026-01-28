@@ -1,6 +1,6 @@
 # MewUIBadApple
 
-"Bad Apple!!" animation player using the MewUI pixel UI framework. Streams frames from text files for memory-efficient playback (~1MB vs ~1.1GB).
+"Bad Apple!!" animation player using the [MewUI](https://github.com/aprillz/MewUI) pixel UI framework. Streams frames from text files for memory-efficient playback (~1MB vs ~1.1GB).
 
 ## Quick Start
 
@@ -75,7 +75,7 @@ ffprobe badapple.mp4
 ```
 MewUIBadApple/
 ├── PngToMatrix.cs            # PNG → text converter (OpenCvSharp4)
-├── MewUiBadApple.cs          # Streaming player (Aprillz.MewUI)
+├── MewUiBadApple.cs          # Streaming player (Aprillz.MewUI, https://github.com/aprillz/MewUI)
 ├── badapple.mp4              # Source video
 │
 │  (Generated — not in git)
@@ -132,3 +132,7 @@ badapple.mp4 → [ffmpeg] → frames/*.png → [PngToMatrix.cs] → meta.txt + f
 ## License
 
 Personal learning and demonstration purposes. "Bad Apple!!" music is copyrighted.
+
+## Acknowledgements
+
+Special thanks to [aprillz](https://github.com/aprillz) for creating [MewUI](https://github.com/aprillz/MewUI), the lightweight pixel UI framework that powers this project.
