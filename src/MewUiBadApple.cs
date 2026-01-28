@@ -35,9 +35,11 @@ var frameValue = new ObservableValue<string>($"Frame: 0/{totalFrames}");
 var elapsedValue = new ObservableValue<string>("Elapsed: 0s");
 
 System.Threading.Timer? animTimer = null;
+bool isClosing = false;
 
 void OnTick()
 {
+    if (isClosing) return;
     sw.Restart();
     canvas.SetFrame(currentFrameData);
     sw.Stop();
@@ -109,6 +111,7 @@ var window = new Window()
     })
     .OnClosed(() =>
     {
+        isClosing = true;
         animTimer?.Dispose();
         framesReader.Dispose();
     });
