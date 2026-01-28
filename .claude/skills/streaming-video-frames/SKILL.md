@@ -1,6 +1,6 @@
 ---
-name: ffmpeg-pipe
-description: "Stream video frames via ffmpeg stdout pipe. Use for real-time video processing without preprocessing."
+name: streaming-video-frames
+description: "Streams raw video frames via ffmpeg stdout pipe. Use for real-time video processing without preprocessing."
 ---
 
 # ffmpeg Stdout Pipe Streaming

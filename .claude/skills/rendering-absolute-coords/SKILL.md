@@ -1,6 +1,6 @@
 ---
-name: absolute-coords
-description: "MewUI custom element rendering uses absolute Bounds coordinates. Use when alignment appears ignored or element renders at top-left."
+name: rendering-absolute-coords
+description: "Renders MewUI custom elements using absolute Bounds coordinates. Use when alignment appears ignored or element renders at top-left."
 ---
 
 # MewUI Absolute Coordinates
