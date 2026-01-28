@@ -2,3 +2,4 @@ frames/
 badapple_meta.txt
 badapple_frames.txt
 .omc/
+.claude/settings.local.json
