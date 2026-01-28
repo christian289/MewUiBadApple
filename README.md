@@ -1,27 +1,37 @@
-# MewUIBadApple
+[![한국어](https://img.shields.io/badge/README.md-한국어-green.svg)](README.ko.md)
 
-"Bad Apple!!" animation player using the [MewUI](https://github.com/aprillz/MewUI) pixel UI framework. Streams frames from text files for memory-efficient playback (~1MB vs ~1.1GB).
+# 🍎 MewUIBadApple
 
-## Quick Start
+![.NET](https://img.shields.io/badge/.NET-10%2B-512BD4?logo=dotnet&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-10%2B-0078D4?logo=windows&logoColor=white)
+![NativeAOT](https://img.shields.io/badge/NativeAOT-Ready-2E7D32)
+![ffmpeg](https://img.shields.io/badge/ffmpeg-Required-007808?logo=ffmpeg&logoColor=white)
+![MewUI](https://img.shields.io/badge/MewUI-0.9.0-FF69B4)
+
+---
+
+**🎬 Bad Apple!!** animation player using the [MewUI](https://github.com/aprillz/MewUI) pixel UI framework.
+Streams frames directly from ffmpeg via stdout pipe for **zero-preprocessing playback**.
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-# 1. Extract frames (choose your preferred scale)
-mkdir frames
-ffmpeg -i badapple.mp4 -vf scale=120:90 frames/frame_%06d.png
-
-# 2. Convert PNG frames to text
-dotnet PngToMatrix.cs
-
-# 3. Play
-dotnet MewUiBadApple.cs
+# Just run it!
+dotnet run src/MewUiBadApple.cs
 ```
 
-## Prerequisites
+That's it. No preprocessing required.
 
-- **.NET 10+** — supports `dotnet file.cs` with `#:package` directives
-- **ffmpeg** — for video frame extraction
+---
 
-### Installing ffmpeg
+## 📋 Prerequisites
+
+- **.NET 10+** — supports `dotnet run file.cs` with `#:package` directives
+- **ffmpeg** — for real-time video decoding
+
+### 📦 Installing ffmpeg
 
 | Platform | Command |
 |----------|---------|
@@ -32,107 +42,85 @@ dotnet MewUiBadApple.cs
 | Ubuntu/Debian | `sudo apt-get install ffmpeg` |
 | Fedora | `sudo dnf install ffmpeg` |
 
-## ffmpeg Examples
+---
 
-```bash
-# Original resolution
-ffmpeg -i badapple.mp4 frames/frame_%06d.png
-
-# Scale down (recommended)
-ffmpeg -i badapple.mp4 -vf scale=120:90 frames/frame_%06d.png
-
-# Keep aspect ratio (auto-calculate height)
-ffmpeg -i badapple.mp4 -vf scale=160:-1 frames/frame_%06d.png
-
-# First 10 seconds only
-ffmpeg -i badapple.mp4 -t 10 frames/frame_%06d.png
-
-# First 300 frames only
-ffmpeg -i badapple.mp4 -frames:v 300 frames/frame_%06d.png
-
-# Custom FPS
-ffmpeg -i badapple.mp4 -vf fps=15 frames/frame_%06d.png
-
-# Combine filters
-ffmpeg -i badapple.mp4 -vf "scale=120:90,fps=15" -frames:v 300 frames/frame_%06d.png
-
-# Check video info
-ffprobe badapple.mp4
-```
-
-**Resolution vs. generated file size:**
-
-| Scale | Resolution | badapple_frames.txt |
-|-------|------------|---------------------|
-| Original | 480×360 | ~1.06 GB |
-| `scale=320:240` | 320×240 | ~470 MB |
-| `scale=160:120` | 160×120 | ~120 MB |
-| `scale=120:90` | 120×90 | ~68 MB |
-| `scale=80:60` | 80×60 | ~30 MB |
-
-## File Structure
+## 📁 File Structure
 
 ```
 MewUIBadApple/
-├── PngToMatrix.cs            # PNG → text converter (OpenCvSharp4)
-├── MewUiBadApple.cs          # Streaming player (Aprillz.MewUI, https://github.com/aprillz/MewUI)
-├── badapple.mp4              # Source video
-│
-│  (Generated — not in git)
-├── frames/                   # PNG frames from ffmpeg
-├── badapple_meta.txt         # "width,height,frameCount"
-└── badapple_frames.txt       # '0'/'1' text per row, blank line between frames
+├── src/
+│   ├── MewUiBadApple.cs       # Main entry point (Aprillz.MewUI)
+│   ├── PixelCanvas.cs         # Custom FrameworkElement for pixel rendering
+│   ├── FfmpegFrameReader.cs   # ffmpeg process wrapper
+│   ├── GlobalUsings.cs        # Global using directives
+│   ├── Directory.Build.props  # Build configuration
+│   └── badapple.mp4           # Source video
+└── README.md
 ```
 
-## CLI Parameters
+---
 
-**PngToMatrix.cs:**
+## ⚙️ CLI Parameters
+
 ```bash
-dotnet PngToMatrix.cs [frames_dir] [meta_file] [frames_file]
-# defaults:            frames       badapple_meta.txt  badapple_frames.txt
+dotnet run src/MewUiBadApple.cs [video_file]
+# default:                       src/badapple.mp4
 ```
 
-**MewUiBadApple.cs:**
-```bash
-dotnet MewUiBadApple.cs [meta_file] [frames_file]
-# defaults:             badapple_meta.txt  badapple_frames.txt
-```
+---
 
-## Architecture
+## 🏗️ Architecture
 
 ```
-badapple.mp4 → [ffmpeg] → frames/*.png → [PngToMatrix.cs] → meta.txt + frames.txt
-                                                                    ↓
-                                              [MewUiBadApple.cs] StreamReader → PixelCanvas
+badapple.mp4 → [ffmpeg subprocess] → stdout (raw grayscale bytes) → PixelCanvas
 ```
 
-- **Streaming**: reads one frame at a time via `StreamReader` (~1MB memory)
-- **Loop**: rewinds with `Seek(0) + DiscardBufferedData()` at end of file
-- **Rendering**: `PixelCanvas` draws pixels directly via `IGraphicsContext` (2×2 cells)
+| Component | Description |
+|-----------|-------------|
+| **ffmpeg** | `ffmpeg -loglevel error -i badapple.mp4 -vf scale=120:90,format=gray -f rawvideo -pix_fmt gray pipe:1` |
+| **Streaming** | Reads raw bytes from `Process.StandardOutput.BaseStream` (~10KB per frame) |
+| **Threshold** | grayscale value > 127 = white, else black |
+| **Loop** | Restarts ffmpeg process at end of video |
+| **Rendering** | `PixelCanvas` draws pixels directly via `IGraphicsContext` (2×2 cells) |
 
-## Customization
+---
 
-- **Resolution**: set at ffmpeg extraction time (see examples above)
-- **FPS**: change `BadAppleFrames.Fps` constant in `MewUiBadApple.cs` (default: 30)
-- **Colors**: change `_bgColor` / `_fgColor` in `PixelCanvas` class
+## 🎨 Customization
 
-## Troubleshooting
+| Setting | Location | Default |
+|---------|----------|---------|
+| Resolution | `width`/`height` constants + ffmpeg scale filter | 120×90 |
+| FPS | `FfmpegFrameReader.Fps` | 30 |
+| Threshold | `FfmpegFrameReader.Threshold` | 127 |
+| Colors | `PixelCanvas._bgColor` / `_fgColor` | Black/White |
+
+---
+
+## 🔧 Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
 | `ffmpeg` not found | Install ffmpeg and add to PATH. Verify: `ffmpeg -version` |
-| `FileNotFoundException` | Run `dotnet PngToMatrix.cs` first to generate data files |
-| Out of memory | Use smaller scale: `ffmpeg -i badapple.mp4 -vf scale=120:90 ...` |
-| Slow rendering | Lower resolution or reduce FPS |
+| `FileNotFoundException` | Ensure `badapple.mp4` exists in `src/` directory |
+| Black screen | Check if video file is valid: `ffprobe badapple.mp4` |
+| Choppy playback | ffmpeg decoding may be CPU-bound; try a shorter/smaller video |
 
-## References
+---
 
-- [MewUI](https://github.com/Aprillz/MewUI) · [OpenCvSharp4](https://github.com/shimat/opencvsharp) · [ffmpeg](https://ffmpeg.org/documentation.html) · [Bad Apple!!](https://www.youtube.com/watch?v=FtutLA63Cp8)
+## 🔗 References
 
-## License
+- [MewUI](https://github.com/Aprillz/MewUI) — Lightweight pixel UI framework
+- [ffmpeg](https://ffmpeg.org/documentation.html) — Video processing
+- [Bad Apple!!](https://www.youtube.com/watch?v=FtutLA63Cp8) — Original video
+
+---
+
+## 📄 License
 
 Personal learning and demonstration purposes. "Bad Apple!!" music is copyrighted.
 
-## Acknowledgements
+---
+
+## 🙏 Acknowledgements
 
 Special thanks to [aprillz](https://github.com/aprillz) for creating [MewUI](https://github.com/aprillz/MewUI), the lightweight pixel UI framework that powers this project.

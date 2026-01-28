@@ -1,0 +1,7 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="GlobalUsings.cs" />
+    <Compile Include="PixelCanvas.cs" />
+    <Compile Include="FfmpegFrameReader.cs" />
+  </ItemGroup>
+</Project>

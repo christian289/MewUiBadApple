@@ -1,33 +1,44 @@
 # MewUI Bad Apple!!
 
-Script-based project (no .csproj). Two C# scripts run via `dotnet <file>.cs`. Requires .NET 10+.
+Script-based project (no .csproj). C# scripts run via `dotnet run src/<file>.cs`. Requires .NET 10+ and ffmpeg.
 
 ## Setup
 
-1. Extract frames: `ffmpeg -i badapple.mp4 -vf scale=120:90 frames/frame_%06d.png`
-2. Convert: `dotnet PngToMatrix.cs`
-3. Play: `dotnet MewUiBadApple.cs`
+1. Place `badapple.mp4` in `src/` directory (or project root)
+2. Run: `dotnet run src/MewUiBadApple.cs`
 
 ## Files
 
-- **PngToMatrix.cs** — PNG → text converter (OpenCvSharp4)
-- **MewUiBadApple.cs** — Streaming player (Aprillz.MewUI, NativeAOT)
-- **badapple.mp4** — Source video
-- `frames/`, `badapple_meta.txt`, `badapple_frames.txt` — Generated, not in git
+```
+MewUiBadApple/
+├── src/
+│   ├── MewUiBadApple.cs       # Main entry point
+│   ├── PixelCanvas.cs         # Custom FrameworkElement for pixel rendering
+│   ├── FfmpegFrameReader.cs   # ffmpeg process wrapper for frame streaming
+│   ├── GlobalUsings.cs        # Global using directives
+│   ├── Directory.Build.props  # Includes additional .cs files for dotnet run
+│   └── badapple.mp4           # Source video
+├── CLAUDE.md                  # This file
+└── README.md                  # Project documentation
+```
 
-## Data Format
+## How It Works
 
-- `badapple_meta.txt`: `width,height,frameCount` (single line)
-- `badapple_frames.txt`: rows of `0`/`1` chars (width per line), blank line between frames
+- ffmpeg runs as subprocess: `ffmpeg -loglevel error -i badapple.mp4 -vf scale=120:90,format=gray -f rawvideo -pix_fmt gray pipe:1`
+- Reads raw grayscale bytes from `Process.StandardOutput.BaseStream`
+- Each frame: 120×90 = 10,800 bytes
+- Threshold 127 applied for binary conversion (0/1)
+- On EOF, ffmpeg process restarts for seamless loop
 
 ## Key Decisions
 
-- Text format instead of JSON — no `System.Text.Json` dependency in player
-- StreamReader streaming — ~1MB memory vs ~1.1GB full load
-- `Seek(0) + DiscardBufferedData()` for loop rewind
+- Direct ffmpeg pipe — no intermediate files, no preprocessing step
+- BaseStream.Read for efficient binary streaming
+- Process restart for looping (vs file seek)
+- MewUI absolute coordinates — Render uses `Bounds.X/Y` offset
 
 ## Constraints
 
-- Frame resolution is static (set at ffmpeg extraction time)
-- Frame file size scales with resolution (480×360 = ~1 GB, 120×90 = ~68 MB)
-- FPS: `BadAppleFrames.Fps` constant (default 30)
+- Requires ffmpeg in PATH
+- Frame resolution hardcoded (120×90)
+- FPS: `FfmpegFrameReader.Fps` constant (default 30)
